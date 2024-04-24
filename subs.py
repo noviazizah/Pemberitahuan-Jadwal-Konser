@@ -1,18 +1,17 @@
-import random
 import time
 from paho.mqtt import client as mqtt_client
 
-### CONFIG ###
+# Configuration
 broker = 'broker.emqx.io'
 port = 1883
 topic = "SMTOWN"
 client_id = ""
-username = 'admin'
+username = 'emqx'
 password = 'public'
 subs = []
 
 def connect_mqtt(client: mqtt_client):
-    ### CONNECT SUBSCRIBER TO BROKER ###
+    # Connect Subscriber to Broker
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
             print("Connected to MQTT Broker!\n")
@@ -23,48 +22,58 @@ def connect_mqtt(client: mqtt_client):
     client.on_connect = on_connect
     client.connect(broker, port)
 
-def on_message(client, userdata, msg):
-    ### GET MESSAGE FROM PUBLISHER ###
-        print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+def on_message(client, userdata, message):
+    #Receive Message from Publisher
+        print(f"You got a message from {message.topic}\n{message.payload.decode()}")
+        print("NOTE: Type `Menu` to show Menu\n")
 
 def subscribe_menu(client):
-    ###  CHOSE TO SUBSCRIBE/UNSUBSCRIBE TOPIC ###
+    # Subscriber Menu
     SM = "SMTOWN"
     YG = "YG Entertaiment"
-    print(f"sekarang sedang subscribe {subs}")
-    print(f"subscribe/unsubscribe : \n 1 {SM} \n 2 {YG}")
-    command = input()
+    header()
+    print(f"Hi, {client_id}!")
+    print(f"Now subscribed {subs}\n")
+    print(f"Subscribe / Unsubscribe your favorite agency: \n 1 {SM} \n 2 {YG} \n\n 0 Exit \n")
+    time.sleep(2)
+    command = input("Choose: ")
     if command == str(1):
-        #Jika sedang subscribe SM, jadi unsubscribe SM. Begitupun sebaliknya
+        # When subscribe SM, then unsubscribe SM
         if SM in subs: 
             subs.pop(subs.index(SM))
             client.unsubscribe(SM)
+            print(f"Unsubscribe to {SM} successful!")
+        # When not subscribe SM, then subscribe SM
         else:
             subs.append(SM)
             client.subscribe(SM)
+            print(f"Subscribe to {SM} successful!")
     elif command == str(2):
-        #Jika sedang subscribe YG, jadi unsubscribe YG. Begitupun sebaliknya
+        # When subscribe YG, then unsubscribe YG
         if YG in subs:
             subs.pop(subs.index(YG))
             client.unsubscribe(YG)
+            print(f"Unsubscribe to {YG} successful!")
+        # When not subscribe YG, then subscribe YG
         else:
             subs.append(YG)
             client.subscribe(YG)
-    print(f"sekarang jadi subscribe {subs}")
-    print()
-    print()
+            print(f"Subscribe to {YG} successful!")
+    elif command == str(0):
+        # Exit
+        header()
+        print("Thank you for hyping with us <3")
+        exit()
+    print(f"Now subscribed {subs}")
+    print("NOTE: Type `menu` to show Menu\n")
 
 def run():
     global client_id
-    client_id = input("USERNAME : ")
-
-    #Make Client
+    header()
+    print("Hi, K-POP fan!\n")
+    client_id = input("Please enter username: ")
     client = mqtt_client.Client(client_id)
-
-    #Connect client to broker
     connect_mqtt(client)
-
-    #Start loop client
     client.loop_start()
     time.sleep(1)
 
@@ -78,6 +87,11 @@ def run():
         time.sleep(1)
 
     client.loop_stop()
+
+def header():
+    print("\n===============================\n")
+    print("      CONCERT HYPE TUNNEL      \n")
+    print("===============================\n")
 
 if __name__ == '__main__':
     run()
