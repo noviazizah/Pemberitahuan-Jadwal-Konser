@@ -6,7 +6,7 @@ broker = 'broker.emqx.io'
 port = 1883
 topic = "SMTOWN"
 client_id = ""
-username = 'emqx'
+username = 'admin'
 password = 'public'
 subs = []
 
